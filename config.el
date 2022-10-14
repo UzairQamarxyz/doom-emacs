@@ -28,12 +28,13 @@
 ;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
 ;; refresh your font settings. If Emacs still can't find your font, it likely
 ;; wasn't installed correctly. Font issues are rarely Doom issues!
-(setq doom-font (font-spec :family "Iosevka Custom" :size 18))
+(setq doom-font (font-spec :family "Iosevka Custom" :size 18)
+      doom-variable-pitch-font (font-spec :family "Cormorant Garamond" :size 24))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'kanagawa)
+(setq doom-theme 'doom-tokyo-night)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -80,3 +81,52 @@
 (set-frame-parameter (selected-frame) 'alpha '(90 90))
 (add-to-list 'default-frame-alist '(alpha 90 90))
 (setq org-hide-emphasis-markers t)
+
+;; Solaire Mode
+(setq solaire-global-mode +1)
+
+;; LSP UI
+(setq lsp-lens-enable t)
+(setq lsp-headerline-breadcrumb-enable t)
+
+;; Cfn-Lint
+(define-derived-mode cfn-yaml-mode yaml-mode
+  "CFN-YAML"
+  "Simple mode to edit CloudFormation template in YAML format.")
+
+(add-to-list 'magic-mode-alist
+             '("\\(---\n\\)?AWSTemplateFormatVersion:" . cfn-yaml-mode))
+
+;; Set up cfn-lint integration if flycheck is installed
+;; Get flycheck here https://www.flycheck.org/
+(when (featurep 'flycheck)
+  (flycheck-define-checker cfn-lint
+    "AWS CloudFormation linter using cfn-lint.
+
+Install cfn-lint first: pip install cfn-lint
+
+See `https://github.com/aws-cloudformation/cfn-python-lint'."
+
+    :command ("cfn-lint" "-f" "parseable" source)
+    :error-patterns ((warning line-start (file-name) ":" line ":" column
+                              ":" (one-or-more digit) ":" (one-or-more digit) ":"
+                              (id "W" (one-or-more digit)) ":" (message) line-end)
+                     (error line-start (file-name) ":" line ":" column
+                            ":" (one-or-more digit) ":" (one-or-more digit) ":"
+                            (id "E" (one-or-more digit)) ":" (message) line-end))
+    :modes (cfn-json-mode cfn-yaml-mode))
+
+  (add-to-list 'flycheck-checkers 'cfn-lint)
+  (add-hook 'cfn-json-mode-hook 'flycheck-mode)
+  (add-hook 'cfn-yaml-mode-hook 'flycheck-mode))
+
+(setq doom-gruvbox-dark-variant "hard")
+(add-to-list 'lsp-language-id-configuration '(terraform-mode . "terraform"))
+
+;; Terraform config
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-stdio-connection '("/path/to/terraform-lsp/terraform-lsp" "-enable-log-file"))
+                  :major-modes '(terraform-mode)
+                  :server-id 'terraform-ls))
+
+(add-hook 'terraform-mode-hook #'lsp)
