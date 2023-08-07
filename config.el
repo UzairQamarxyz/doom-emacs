@@ -1,4 +1,4 @@
-;;; config.el -*- lexical-binding: t; -*-
+;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
@@ -7,7 +7,7 @@
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 (setq user-full-name "Uzair Qamar"
-      user-mail-address "uzairq@xgrid.co")
+      user-mail-address "uzairqamarxyz@gmail.com")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;;
@@ -28,20 +28,18 @@
 ;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
 ;; refresh your font settings. If Emacs still can't find your font, it likely
 ;; wasn't installed correctly. Font issues are rarely Doom issues!
-;;
-;; (setq doom-font (font-spec :family "Iosevka Custom" :size 18)
-(setq doom-font (font-spec :family "Iosevka Custom" :size 18)
-      doom-variable-pitch-font (font-spec :family "Cormorant Garamond" :size 20))
+(setq doom-font (font-spec :family "IosevkaCustom Nerd Font" :size 18)
+      doom-variable-pitch-font (font-spec :family "Proxima Nova" :size 20))
       ;; doom-variable-pitch-font (font-spec :family "Cormorant Infant" :size 20))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-tokyo-night)
+(setq doom-theme 'kanagawa)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type `relative)
+(setq display-line-numbers-type 'relative)
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -88,29 +86,33 @@
 ;; Set fringe style
 (set-fringe-mode 0)
 
-;; Solaire Mode
+;; Global Solaire Mode
 (setq solaire-global-mode +1)
 
-;; LSP UI
-(setq lsp-lens-enable t)
-(setq lsp-headerline-breadcrumb-enable t)
-(setq lsp-semantic-tokens-enable t)
-(setq lsp-semantic-tokens-honor-refresh-requests t)
-(setq lsp-enable-links t)
+(define-derived-mode cfn-mode yaml-mode
+  "Cloudformation"
+  "Cloudformation template mode.")
 
-;; Terraform config
-(use-package lsp-mode
-  :ensure t
-  :hook ((terraform-mode . lsp-deferred)))
-(setq lsp-terraform-ls-enable-show-reference t)
-
-;; Cfn-Lint
-(define-derived-mode cfn-yaml-mode yaml-mode
-  "CFN-YAML"
-  "Simple mode to edit CloudFormation template in YAML format.")
+;; cfn-lint
+;; Set up a mode for JSON based templates
+(define-derived-mode cfn-json-mode js-mode
+    "CFN-JSON"
+    "Simple mode to edit CloudFormation template in JSON format."
+    (setq js-indent-level 2))
 
 (add-to-list 'magic-mode-alist
-             '("\\(---\n\\)?AWSTemplateFormatVersion:" . cfn-yaml-mode))
+             '("\\({\n *\\)? *[\"']AWSTemplateFormatVersion" . cfn-json-mode))
+
+;; Set up a mode for YAML based templates if yaml-mode is installed
+;; Get yaml-mode here https://github.com/yoshiki/yaml-mode
+(when (featurep 'yaml-mode)
+
+  (define-derived-mode cfn-yaml-mode yaml-mode
+    "CFN-YAML"
+    "Simple mode to edit CloudFormation template in YAML format.")
+
+  (add-to-list 'magic-mode-alist
+               '("\\(---\n\\)?AWSTemplateFormatVersion:" . cfn-yaml-mode)))
 
 ;; Set up cfn-lint integration if flycheck is installed
 ;; Get flycheck here https://www.flycheck.org/
@@ -135,4 +137,5 @@ See `https://github.com/aws-cloudformation/cfn-python-lint'."
   (add-hook 'cfn-json-mode-hook 'flycheck-mode)
   (add-hook 'cfn-yaml-mode-hook 'flycheck-mode))
 
-(setq doom-gruvbox-dark-variant "hard")
+;; https://github.com/hlissner/doom-emacs/issues/3592
+(remove-hook! 'text-mode-hook #'+spell-remove-run-together-switch-for-aspell-h)

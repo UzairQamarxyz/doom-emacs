@@ -53,3 +53,5 @@
 
 (package! emacs-theme-kanagawa
   :recipe (:host github :repo "jasonm23/emacs-theme-kanagawa"))
+
+(package! ef-themes)
