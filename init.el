@@ -21,7 +21,7 @@
        ;;layout            ; auie,ctsrnm is the superior home row
 
        :completion
-       (company +childframe)            ; the ultimate code completion backend
+       (company +childframe +tng)       ; the ultimate code completion backend
        ;;corfu                          ; complete with cap(f), cape and a flying feather!
        ;;helm                           ; the *other* search engine for love and life
        ;;ido                            ; the other *other* search engine...
@@ -42,7 +42,7 @@
        nav-flash                                        ; blink cursor line after big motions
        ;;neotree                                        ; a project drawer, like NERDTree for vim
        ophints                                          ; highlight the region an operation acts on
-       (popup +all)                                     ; tame sudden yet inevitable temporary windows
+       (popup +defaults +all)                           ; tame sudden yet inevitable temporary windows
        (smooth-scroll +interpolate)                     ; So smooth you won't believe it's not butter
        ;;tabs                                           ; a tab bar for Emacs
        (treemacs +lsp)                                  ; a project drawer, like neotree but cooler
