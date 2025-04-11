@@ -1,3 +1,5 @@
+;;; custom.el -*- lexical-binding: t; -*-
+
 (put 'projectile-ripgrep 'disabled nil)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
